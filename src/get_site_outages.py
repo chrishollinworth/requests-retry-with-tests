@@ -39,7 +39,10 @@ class GetSiteOutages:
 
     @retry(wait=wait_fixed(RETRY_DELAY))
     def post_site_outages(self, site, outages):
-        request = requests.post(f'{ENDPOINT}/site-outages/{site}', headers=headers, data=json.dumps(outages))
+        request = requests.post(
+            f'{ENDPOINT}/site-outages/{site}',
+            headers=headers,
+            data=json.dumps(outages))
         if request.status_code != requests.codes.ok:
             if str(request.status_code).startswith('5'):
                 raise Exception
@@ -62,8 +65,20 @@ class GetSiteOutages:
         outages = []
         if outages_response is not None and site_info is not None:
             for outage in list(outages_response):
-                if next((item for item in site_info['devices'] if item["id"] == outage['id']), False) is not False and datetime.strptime(outage['begin'], DATETIME_FORMAT) >= datetime.strptime(EVENTS_BEFORE_DATE, DATETIME_FORMAT):
-                    outages.append({'id': outage['id'], 'name': next(item['name'] for item in site_info['devices'] if item["id"] == outage['id']), 'begin': outage['begin'], 'end': outage['end']})  
+                if next(
+                    (item for item in site_info['devices'] if item["id"] == outage['id']),
+                    False) is not False and datetime.strptime(
+                    outage['begin'],
+                    DATETIME_FORMAT) >= datetime.strptime(
+                    EVENTS_BEFORE_DATE,
+                        DATETIME_FORMAT):
+                    outages.append(
+                        {
+                            'id': outage['id'],
+                            'name': next(
+                                item['name'] for item in site_info['devices'] if item["id"] == outage['id']),
+                            'begin': outage['begin'],
+                            'end': outage['end']})
             if outages:
                 result = self.post_site_outages(site=site, outages=outages)
 
