@@ -14,7 +14,7 @@ ENDPOINT = 'https://api.krakenflex.systems/interview-tests-mock-api/v1'
 
 class TestGetSiteOutages(unittest.TestCase):
 
-    @responses.activate(registry=registries.OrderedRegistry)
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
     def test_norwich_positive(self):
 
         test_site = 'norwich-pear-tree'
@@ -62,7 +62,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp3.status == 200
         assert resp3.url == f'{ENDPOINT}/site-outages/{test_site}'
 
-    @responses.activate(registry=registries.OrderedRegistry)
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
     def test_norwich_positive_outages_500_error(self):
 
         test_site = 'norwich-pear-tree'
@@ -120,7 +120,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp4.status == 200
         assert resp4.url == f'{ENDPOINT}/site-outages/{test_site}'
 
-    @responses.activate(registry=registries.OrderedRegistry)
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
     def test_norwich_positive_site_info_500_error(self):
 
         test_site = 'norwich-pear-tree'
@@ -181,7 +181,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp4.status == 200
         assert resp4.url == f'{ENDPOINT}/site-outages/{test_site}'
 
-    @responses.activate(registry=registries.OrderedRegistry)
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
     def test_norwich_positive_site_outages_500_error(self):
 
         test_site = 'norwich-pear-tree'
@@ -241,7 +241,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp4.status == 200
         assert resp4.url == f'{ENDPOINT}/site-outages/{test_site}'
 
-    @responses.activate(registry=registries.OrderedRegistry)
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
     def test_kingfisher_positive(self):
 
         test_site = 'kingfisher'
@@ -289,7 +289,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp3.status == 200
         assert resp3.url == f'{ENDPOINT}/site-outages/{test_site}'
 
-    @responses.activate(registry=registries.OrderedRegistry)
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
     def test_kingfisher_outages_404_negative(self):
 
         test_site = 'kingfisher'
@@ -322,7 +322,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp2.status == 200
         assert resp2.url == f'{ENDPOINT}/site-info/{test_site}'
 
-    @responses.activate(registry=registries.OrderedRegistry)
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
     def test_kingfisher_site_info_404_negative(self):
 
         test_site = 'kingfisher'
@@ -355,7 +355,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp2.status == 404
         assert resp2.url == f'{ENDPOINT}/site-info/{test_site}'
 
-    @responses.activate(registry=registries.OrderedRegistry)
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
     def test_kingfisher_site_outages_404_negative(self):
 
         test_site = 'kingfisher'
@@ -403,7 +403,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp3.status == 404
         assert resp3.url == f'{ENDPOINT}/site-outages/{test_site}'
 
-    @responses.activate(registry=registries.OrderedRegistry)
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
     def test_on_or_before_date_positive(self):
 
         test_site = 'test_site'
@@ -452,7 +452,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp3.status == 200
         assert resp3.url == f'{ENDPOINT}/site-outages/{test_site}'
 
-    @responses.activate(registry=registries.OrderedRegistry)
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
     def test_on_or_before_date_negative(self):
 
         test_site = 'norwich-pear-tree'
