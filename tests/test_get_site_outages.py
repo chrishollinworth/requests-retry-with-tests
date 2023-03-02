@@ -404,7 +404,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp3.url == f'{ENDPOINT}/site-outages/{test_site}'
 
     @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
-    def test_on_or_before_date_positive(self):
+    def test_before_date_positive(self):
 
         test_site = 'test_site'
 
@@ -453,7 +453,7 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp3.url == f'{ENDPOINT}/site-outages/{test_site}'
 
     @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
-    def test_on_or_before_date_negative(self):
+    def test_after_date_negative(self):
 
         test_site = 'norwich-pear-tree'
 
@@ -487,6 +487,55 @@ class TestGetSiteOutages(unittest.TestCase):
         assert resp2.status == 200
         assert resp2.url == f'{ENDPOINT}/site-info/{test_site}'
 
+    @responses.activate(registry=registries.OrderedRegistry, assert_all_requests_are_fired=True)
+    def test_on_date_positive(self):
+
+        test_site = 'test_site'
+
+        resp1 = responses.add(
+            responses.GET,
+            f'{ENDPOINT}/outages',
+            body='[{"id":"04afe3e5-57e6-4660-ad14-73c07fdda387","begin":"2022-01-01T00:00:00.000Z","end":"2022-05-03T22:01:07.624Z"}]',
+            status=200,
+            content_type='application/json')
+
+        resp2 = responses.add(
+            responses.GET,
+            f'{ENDPOINT}/site-info/{test_site}',
+            body='{"id":"norwich-pear-tree","name":"Norwich Pear Tree","devices":[{"id":"04afe3e5-57e6-4660-ad14-73c07fdda387","name":"Battery 1"}]}',
+            status=200,
+            content_type='application/json')
+
+        expected_post_data = '[{"id": "04afe3e5-57e6-4660-ad14-73c07fdda387", "name": "Battery 1", "begin": "2022-01-01T00:00:00.000Z", "end": "2022-05-03T22:01:07.624Z"}]'
+        resp3 = responses.add(
+            responses.POST,
+            f'{ENDPOINT}/site-outages/{test_site}',
+            body=expected_post_data,
+            status=200,
+            content_type='application/json')
+
+        get_site_outages = GetSiteOutages()
+        resp = get_site_outages.process_site_outages(site=test_site)
+
+        assert resp
+        assert len(responses.calls) == 3
+        assert responses.calls[2].request.body == expected_post_data
+
+        assert resp1.call_count == 1
+        assert resp1.method == 'GET'
+        assert resp1.status == 200
+        assert resp1.url == f'{ENDPOINT}/outages'
+
+        assert resp2.call_count == 1
+        assert resp2.method == 'GET'
+        assert resp2.status == 200
+        assert resp2.url == f'{ENDPOINT}/site-info/{test_site}'
+
+        assert resp3.call_count == 1
+        assert resp3.method == 'POST'
+        assert resp3.status == 200
+        assert resp3.url == f'{ENDPOINT}/site-outages/{test_site}'
 
 if __name__ == '__main__':
     unittest.main()
+
