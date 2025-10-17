@@ -1,6 +1,8 @@
 import json
+import os
 import sys
 from datetime import datetime
+from pathlib import Path
 
 import requests
 from tenacity import retry, wait_fixed
@@ -10,14 +12,37 @@ DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 RETRY_DELAY = 1
 ENDPOINT = 'https://api.krakenflex.systems/interview-tests-mock-api/v1'
 
-headers = None
+API_KEY_ENV_VAR = 'KRAKENFLEX_API_KEY'
+API_KEY_FILE = Path('api-key.txt')
+API_KEY_HEADER = 'x-api-key'
 
 
 class GetSiteOutages:
 
+    def __init__(self, session=None, api_key=None):
+        self.session = session or requests.Session()
+        self._api_key = api_key
+        self.headers = self._build_headers(api_key)
+
+    def _build_headers(self, api_key):
+        header_value = api_key or os.getenv(API_KEY_ENV_VAR) or self._read_api_key_file()
+        if header_value:
+            return {API_KEY_HEADER: header_value.strip()}
+        return {}
+
+    @staticmethod
+    def _read_api_key_file():
+        if not API_KEY_FILE.exists():
+            return ''
+        try:
+            file_lines = API_KEY_FILE.read_text().splitlines()
+        except OSError:
+            return ''
+        return file_lines[0].strip() if file_lines else ''
+
     @retry(wait=wait_fixed(RETRY_DELAY))
     def get_outages(self):
-        request = requests.get(f'{ENDPOINT}/outages', headers=headers)
+        request = self.session.get(f'{ENDPOINT}/outages', headers=self.headers)
         if request.status_code != requests.codes.ok:
             if str(request.status_code).startswith('5'):
                 raise Exception
@@ -28,7 +53,7 @@ class GetSiteOutages:
 
     @retry(wait=wait_fixed(RETRY_DELAY))
     def get_site_info(self, site):
-        request = requests.get(f'{ENDPOINT}/site-info/{site}', headers=headers)
+        request = self.session.get(f'{ENDPOINT}/site-info/{site}', headers=self.headers)
         if request.status_code != requests.codes.ok:
             if str(request.status_code).startswith('5'):
                 raise Exception
@@ -39,9 +64,9 @@ class GetSiteOutages:
 
     @retry(wait=wait_fixed(RETRY_DELAY))
     def post_site_outages(self, site, outages):
-        request = requests.post(
+        request = self.session.post(
             f'{ENDPOINT}/site-outages/{site}',
-            headers=headers,
+            headers=self.headers,
             data=json.dumps(outages))
         if request.status_code != requests.codes.ok:
             if str(request.status_code).startswith('5'):
@@ -54,10 +79,7 @@ class GetSiteOutages:
     def process_site_outages(self, site):
         result = False
 
-        global headers
-        with open('api-key.txt', 'r') as apikey_file:
-            file_lines = apikey_file.readlines()
-            headers = {'x-api-key': file_lines[0]}
+        self.headers = self._build_headers(self._api_key)
 
         outages_response = self.get_outages()
         site_info = self.get_site_info(site=site)
