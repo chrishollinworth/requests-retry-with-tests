@@ -8,7 +8,7 @@ pip install -r requirements.txt
 
 How to Run Program
 ```cd src
-python get_site_outages.sh "norwich-pear-tree"
+python get_site_outages.py "norwich-pear-tree"
 ```
 
 Install Test Dependencies
